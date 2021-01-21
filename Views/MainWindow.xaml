@@ -1,0 +1,25 @@
+﻿<Window x:Class="PartCreator.Views.MainWindow"
+        x:Name="MainWindowUI"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:PartCreator.ViewModels"
+        mc:Ignorable="d"
+        Title="PartCreator" Height="300" Width="500" FontSize="18">
+    <Window.DataContext>
+        <local:ViewModel/>
+    </Window.DataContext>
+    <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+            <Button Padding="5" Margin="10" Content="Select line set 1" 
+                    Command="{Binding SelectSet1Command}" CommandParameter="{Binding ElementName=MainWindowUI}"/>
+            <Button Padding="5" Margin="10" Content="Select line set 2"
+                    Command="{Binding SelectSet2Command}" CommandParameter="{Binding ElementName=MainWindowUI}"/>
+        </StackPanel>
+        <Button Padding="5" Margin="10" Content="Create Part" 
+                Command="{Binding PartCreateCommand}" CommandParameter="{Binding ElementName=MainWindowUI}"/>
+    </StackPanel>
+
+</Window>
