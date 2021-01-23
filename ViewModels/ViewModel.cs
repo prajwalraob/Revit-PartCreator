@@ -16,6 +16,7 @@ using Autodesk.Revit.ApplicationServices;
 using Creation = Autodesk.Revit.Creation;
 using System.Collections.ObjectModel;
 using PartCreator.Views;
+using PartCreator.Process;
 
 namespace PartCreator.ViewModels
 {
@@ -37,7 +38,7 @@ namespace PartCreator.ViewModels
         }
 
         private ModelLine _line1;
-        private ModelLine Line1
+        public ModelLine Line1
         {
             get => _line1;
             set
@@ -51,7 +52,7 @@ namespace PartCreator.ViewModels
         }
 
         private ModelLine _line2;
-        private ModelLine Line2
+        public ModelLine Line2
         {
             get => _line2;
             set
@@ -65,7 +66,7 @@ namespace PartCreator.ViewModels
         }
 
         private ModelLine _line3;
-        private ModelLine Line3
+        public ModelLine Line3
         {
             get => _line3;
             set
@@ -79,7 +80,7 @@ namespace PartCreator.ViewModels
         }
 
         private ModelLine _line4;
-        private ModelLine Line4
+        public ModelLine Line4
         {
             get => _line4;
             set
@@ -103,16 +104,13 @@ namespace PartCreator.ViewModels
         {
             MainWindow mainWindow = wnd as MainWindow;
             mainWindow.Hide();
-            var refs = PublicVariables.UIDoc.Selection.PickObjects(ObjectType.Element);
-            if(refs.ElementAtOrDefault(0) != null)
+
+            for(int k = 1; k <=2; k++)
             {
-                Line1 = PublicVariables.Doc.GetElement(refs[0].ElementId) as ModelLine;
+                var reference = PublicVariables.UIDoc.Selection.PickObject(ObjectType.Element);
+                typeof(ViewModel).GetProperty("Line" + k.ToString()).SetValue(this, PublicVariables.Doc.GetElement(reference) as ModelLine);
             }
-            if (refs.ElementAtOrDefault(1) != null)
-            {
-                Line2 = PublicVariables.Doc.GetElement(refs[1].ElementId) as ModelLine;
-                TaskDialog.Show("Elements Selected", "Line1 and Line2 selected");
-            }
+
             mainWindow.ShowDialog();
         }
         
@@ -120,22 +118,19 @@ namespace PartCreator.ViewModels
         {
             MainWindow mainWindow = wnd as MainWindow;
             mainWindow.Hide();
-            var refs = PublicVariables.UIDoc.Selection.PickObjects(ObjectType.Element);
-            if (refs.ElementAtOrDefault(0) != null)
+            for (int k = 3; k <= 4; k++)
             {
-                Line3 = PublicVariables.Doc.GetElement(refs[0].ElementId) as ModelLine;
+                var reference = PublicVariables.UIDoc.Selection.PickObject(ObjectType.Element);
+                typeof(ViewModel).GetProperty("Line" + k.ToString()).SetValue(this, PublicVariables.Doc.GetElement(reference) as ModelLine);
             }
-            if (refs.ElementAtOrDefault(1) != null)
-            {
-                Line4 = PublicVariables.Doc.GetElement(refs[1].ElementId) as ModelLine;
-                TaskDialog.Show("Elements Selected", "Line3 and Line4 selected");
-            }
+
             mainWindow.ShowDialog();
         }
 
         public void PartCreate(object wnd)
         {
-
+            CreatePart create = new CreatePart(Line1, Line2, Line3, Line4);
+            create.Run();
         }
 
         public bool CanExecutePartCreate(object wnd)
