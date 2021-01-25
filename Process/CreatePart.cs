@@ -29,9 +29,55 @@ namespace PartCreator.Process
             Line2 = line2.GeometryCurve as Line;
             Line3 = line3.GeometryCurve as Line;
             Line4 = line4.GeometryCurve as Line;
+            GetIntersectionPoints();
         }
 
         public bool Run()
+        {
+
+            XYZ line1Parallel = Line1.Direction;
+            XYZ line1Perpendicular = Transform.CreateRotation(new XYZ(0, 0, 1), Math.PI / 2).OfVector(line1Parallel);
+            Line tempLine0 = CreateInfiniteLine(Point1, line1Parallel);
+            Line tempLine1 = null;
+            Line tempLine2 = null;
+            Line tempLine3 = null;
+            Line tempCentroidLine = CreateInfiniteLine(GetCentroid(), line1Perpendicular);
+
+            if (Line1.Distance(Point3) > Line1.Distance(Point4))
+            {
+                tempLine1 = CreateInfiniteLine(Point3, line1Parallel);
+            }
+            else
+            {
+                tempLine1 = CreateInfiniteLine(Point4, line1Parallel);
+            }
+
+            if(tempCentroidLine.Distance(Point1) > tempCentroidLine.Distance(Point3))
+            {
+                tempLine2 = CreateInfiniteLine(Point1, line1Perpendicular);
+            }
+            else
+            {
+                tempLine2 = CreateInfiniteLine(Point3, line1Perpendicular);
+            }
+
+            if (tempCentroidLine.Distance(Point2) > tempCentroidLine.Distance(Point4))
+            {
+                tempLine3 = CreateInfiniteLine(Point2, line1Perpendicular);
+            }
+            else
+            {
+                tempLine3 = CreateInfiniteLine(Point4, line1Perpendicular);
+            }
+
+            CreateCurve(tempLine0);CreateCurve(tempLine1);CreateCurve(tempLine2);CreateCurve(tempLine3);
+
+
+
+            return true;
+        }
+
+        private void GetIntersectionPoints()
         {
             IntersectionResultArray iresArray1;
             SetComparisonResult result1 = Line1.Intersect(Line3, out iresArray1);
@@ -52,75 +98,48 @@ namespace PartCreator.Process
             SetComparisonResult result4 = Line2.Intersect(Line4, out iresArray4);
             IntersectionResult ires4 = iresArray4.get_Item(0);
             Point4 = ires4.XYZPoint;
+        }
 
-            double dist1 = Line1.Distance(Point3);
-            double dist2 = Line1.Distance(Point4);
-            Line tempLine1 = null;
-            Line tempLine2 = null;
-            XYZ line1Parallel = (Line1.GetEndPoint(0) - Line1.GetEndPoint(1)).Normalize();
-            XYZ line1Parallel1 = Line1.Direction;
-            XYZ line1Perpendicular = Transform.CreateRotation(new XYZ(0, 0, 1), Math.PI / 2).OfVector(line1Parallel);
-            Line tempLine0 = Line.CreateBound(Point1 - 10000 * line1Parallel, Point1 + 10000 * line1Parallel);
-            Line tempLine3 = null;
+        private XYZ GetCentroid()
+        {
+            Line line1 = Line.CreateBound(Line.CreateBound(Point1, Point2).Evaluate(0.5, true),
+                Line.CreateBound(Point3, Point4).Evaluate(0.5, true));
+            Line line2 = Line.CreateBound(Line.CreateBound(Point1, Point3).Evaluate(0.5, true),
+                Line.CreateBound(Point2, Point4).Evaluate(0.5, true));
 
-            if (dist1 > dist2)
-            {
-                tempLine1 = Line.CreateBound(Point3 - 10000 * line1Parallel, Point3 + 10000 * line1Parallel);
-                tempLine2 = Line.CreateBound(Point4 - 10000 * line1Perpendicular, Point4 + 10000 * line1Perpendicular);
-                double dist3 = tempLine2.Distance(Point1);
-                double dist4 = tempLine2.Distance(Point3);
-                if(dist3 > dist4)
-                {
-                    tempLine3 = Line.CreateBound(Point1 - 10000 * line1Perpendicular, Point1 + 10000 * line1Perpendicular);
-                }
-                else
-                {
-                    tempLine3 = Line.CreateBound(Point3 - 10000 * line1Perpendicular, Point3 + 10000 * line1Perpendicular);
-                }
-            }
-            else
-            {
-                tempLine1 = Line.CreateBound(Point4 - 10000 * line1Parallel, Point4 + 10000 * line1Parallel);
-                tempLine2 = Line.CreateBound(Point3 - 10000 * line1Perpendicular, Point3 + 10000 * line1Perpendicular);
-                double dist3 = tempLine2.Distance(Point2);
-                double dist4 = tempLine2.Distance(Point4);
-                if (dist3 > dist4)
-                {
-                    tempLine3 = Line.CreateBound(Point2 - 10000 * line1Perpendicular, Point2 + 10000 * line1Perpendicular);
-                }
-                else
-                {
-                    tempLine3 = Line.CreateBound(Point4 - 10000 * line1Perpendicular, Point4 + 10000 * line1Perpendicular);
-                }
-            }
+            //CreateCurve(line1); CreateCurve(line2);
+            IntersectionResultArray iresArray;
+            SetComparisonResult result = line1.Intersect(line2, out iresArray);
+            IntersectionResult ires = iresArray.get_Item(0);
+            return ires.XYZPoint;
+        }
 
-            IntersectionResultArray resultArray;
-            IntersectionResult result = null;
-            SetComparisonResult compResult = tempLine1.Intersect(tempLine2, out resultArray);
-            if (compResult == SetComparisonResult.Overlap) result = resultArray.get_Item(0);
-            
+        private Line CreateInfiniteLine(XYZ point, XYZ direction)
+        {
+            return Line.CreateBound(point - 10000 * direction, point + 10000 * direction);
+        }
 
-
-            using (Transaction tr = new Transaction(PublicVariables.Doc, "Create Test Line"))
+        private ModelCurve CreateCurve(Curve curve)
+        {
+            ModelCurve modelCurve = null;
+            using (Transaction tr = new Transaction(PublicVariables.Doc, "Create Test Curve"))
             {
                 tr.Start();
                 try
                 {
-                    PublicVariables.Doc.Create.NewModelCurve(tempLine0, PublicVariables.UIDoc.ActiveView.SketchPlane);
-                    PublicVariables.Doc.Create.NewModelCurve(tempLine1, PublicVariables.UIDoc.ActiveView.SketchPlane);
-                    PublicVariables.Doc.Create.NewModelCurve(tempLine2, PublicVariables.UIDoc.ActiveView.SketchPlane);
-                    PublicVariables.Doc.Create.NewModelCurve(tempLine3, PublicVariables.UIDoc.ActiveView.SketchPlane);
+                    modelCurve = PublicVariables.Doc.Create.NewModelCurve(curve, PublicVariables.UIDoc.ActiveView.SketchPlane);
                     tr.Commit();
                 }
-                catch(Exception E)
+                catch (Exception E)
                 {
                     TaskDialog.Show("Error", E.Message);
-                    tr.RollBack();                
+                    tr.RollBack();
                 }
             }
 
-            return true;
+            return modelCurve;
         }
+
 
 
     }

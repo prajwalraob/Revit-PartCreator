@@ -25,79 +25,20 @@ namespace PartCreator.ViewModels
         public Command SelectSet1Command { get; set; }
         public Command SelectSet2Command { get; set; }
         public Command PartCreateCommand { get; set; }
+        public Command SelectFloorCommand { get; set; }
 
-        private bool _isCreateButtonEnabled;
-        public bool IsCreateButtonEnabled
-        {
-            get => _isCreateButtonEnabled;
-            set
-            {
-                _isCreateButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private ModelLine _line1;
-        public ModelLine Line1
-        {
-            get => _line1;
-            set
-            {                
-                _line1 = value;
-                if(Line1 != null && Line2 != null && Line3 != null && Line4 != null)
-                {
-                    IsCreateButtonEnabled = true;
-                }
-            }
-        }
-
-        private ModelLine _line2;
-        public ModelLine Line2
-        {
-            get => _line2;
-            set
-            {
-                _line2 = value;
-                if (Line1 != null && Line2 != null && Line3 != null && Line4 != null)
-                {
-                    IsCreateButtonEnabled = true;
-                }
-            }
-        }
-
-        private ModelLine _line3;
-        public ModelLine Line3
-        {
-            get => _line3;
-            set
-            {
-                _line3 = value;
-                if (Line1 != null && Line2 != null && Line3 != null && Line4 != null)
-                {
-                    IsCreateButtonEnabled = true;
-                }
-            }
-        }
-
-        private ModelLine _line4;
-        public ModelLine Line4
-        {
-            get => _line4;
-            set
-            {
-                _line4 = value;
-                if (Line1 != null && Line2 != null && Line3 != null && Line4 != null)
-                {
-                    IsCreateButtonEnabled = true;
-                }
-            }
-        }
+        public ModelLine Line1 { get; set; }
+        public ModelLine Line2 { get; set; }
+        public ModelLine Line3 { get; set; }
+        public ModelLine Line4 { get; set; }
+        public Floor SelectedFloor { get; set; }
 
         public ViewModel()
         {
             SelectSet1Command = new Command (SelectSet1);
             SelectSet2Command = new Command (SelectSet2);
             PartCreateCommand = new Command(PartCreate, CanExecutePartCreate);
+            SelectFloorCommand = new Command(SelectFloor);
         }
 
         public void SelectSet1(object wnd)
@@ -133,9 +74,20 @@ namespace PartCreator.ViewModels
             create.Run();
         }
 
+        public void SelectFloor(object wnd)
+        {
+            MainWindow mainWindow = wnd as MainWindow;
+            mainWindow.Hide();
+
+            SelectedFloor = PublicVariables.Doc.GetElement(
+                PublicVariables.UIDoc.Selection.PickObject(ObjectType.Element)) as Floor;
+
+            mainWindow.ShowDialog();
+        }
+
         public bool CanExecutePartCreate(object wnd)
         {
-            return (Line1 != null && Line2 != null && Line3 != null && Line4 != null);
+            return (Line1 != null && Line2 != null && Line3 != null && Line4 != null && SelectedFloor != null);
         }
     }
 }
