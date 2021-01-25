@@ -18,6 +18,11 @@ namespace PartCreator.Process
         private Line Line3 { get; set; }
         private Line Line4 { get; set; }
 
+        private XYZ Point1 { get; set; }
+        private XYZ Point2 { get; set; }
+        private XYZ Point3 { get; set; }
+        private XYZ Point4 { get; set; }
+
         public CreatePart(ModelLine line1, ModelLine line2, ModelLine line3, ModelLine line4)
         {
             Line1 = line1.GeometryCurve as Line;
@@ -31,61 +36,61 @@ namespace PartCreator.Process
             IntersectionResultArray iresArray1;
             SetComparisonResult result1 = Line1.Intersect(Line3, out iresArray1);
             IntersectionResult ires1 = iresArray1.get_Item(0);
-            XYZ point1 = ires1.XYZPoint;
+            Point1 = ires1.XYZPoint;
 
             IntersectionResultArray iresArray2;
             SetComparisonResult result2 = Line1.Intersect(Line4, out iresArray2);
             IntersectionResult ires2 = iresArray2.get_Item(0);
-            XYZ point2 = ires2.XYZPoint;
+            Point2 = ires2.XYZPoint;
 
             IntersectionResultArray iresArray3;
             SetComparisonResult result3 = Line2.Intersect(Line3, out iresArray3);
             IntersectionResult ires3 = iresArray3.get_Item(0);
-            XYZ point3 = ires3.XYZPoint;
+            Point3 = ires3.XYZPoint;
 
             IntersectionResultArray iresArray4;
             SetComparisonResult result4 = Line2.Intersect(Line4, out iresArray4);
             IntersectionResult ires4 = iresArray4.get_Item(0);
-            XYZ point4 = ires4.XYZPoint;
+            Point4 = ires4.XYZPoint;
 
-            double dist1 = Line1.Distance(point3);
-            double dist2 = Line1.Distance(point4);
+            double dist1 = Line1.Distance(Point3);
+            double dist2 = Line1.Distance(Point4);
             Line tempLine1 = null;
             Line tempLine2 = null;
             XYZ line1Parallel = (Line1.GetEndPoint(0) - Line1.GetEndPoint(1)).Normalize();
             XYZ line1Parallel1 = Line1.Direction;
             XYZ line1Perpendicular = Transform.CreateRotation(new XYZ(0, 0, 1), Math.PI / 2).OfVector(line1Parallel);
-            Line tempLine0 = Line.CreateBound(point1 - 10000 * line1Parallel, point1 + 10000 * line1Parallel);
+            Line tempLine0 = Line.CreateBound(Point1 - 10000 * line1Parallel, Point1 + 10000 * line1Parallel);
             Line tempLine3 = null;
 
             if (dist1 > dist2)
             {
-                tempLine1 = Line.CreateBound(point3 - 10000 * line1Parallel, point3 + 10000 * line1Parallel);
-                tempLine2 = Line.CreateBound(point4 - 10000 * line1Perpendicular, point4 + 10000 * line1Perpendicular);
-                double dist3 = tempLine2.Distance(point2);
-                double dist4 = tempLine2.Distance(point3);
+                tempLine1 = Line.CreateBound(Point3 - 10000 * line1Parallel, Point3 + 10000 * line1Parallel);
+                tempLine2 = Line.CreateBound(Point4 - 10000 * line1Perpendicular, Point4 + 10000 * line1Perpendicular);
+                double dist3 = tempLine2.Distance(Point1);
+                double dist4 = tempLine2.Distance(Point3);
                 if(dist3 > dist4)
                 {
-                    tempLine3 = Line.CreateBound(point2 - 10000 * line1Perpendicular, point2 + 10000 * line1Perpendicular);
+                    tempLine3 = Line.CreateBound(Point1 - 10000 * line1Perpendicular, Point1 + 10000 * line1Perpendicular);
                 }
                 else
                 {
-                    tempLine3 = Line.CreateBound(point3 - 10000 * line1Perpendicular, point3 + 10000 * line1Perpendicular);
+                    tempLine3 = Line.CreateBound(Point3 - 10000 * line1Perpendicular, Point3 + 10000 * line1Perpendicular);
                 }
             }
             else
             {
-                tempLine1 = Line.CreateBound(point4 - 10000 * line1Parallel, point4 + 10000 * line1Parallel);
-                tempLine2 = Line.CreateBound(point3 - 10000 * line1Perpendicular, point3 + 10000 * line1Perpendicular);
-                double dist3 = tempLine2.Distance(point1);
-                double dist4 = tempLine2.Distance(point4);
+                tempLine1 = Line.CreateBound(Point4 - 10000 * line1Parallel, Point4 + 10000 * line1Parallel);
+                tempLine2 = Line.CreateBound(Point3 - 10000 * line1Perpendicular, Point3 + 10000 * line1Perpendicular);
+                double dist3 = tempLine2.Distance(Point2);
+                double dist4 = tempLine2.Distance(Point4);
                 if (dist3 > dist4)
                 {
-                    tempLine3 = Line.CreateBound(point1 - 10000 * line1Perpendicular, point2 + 10000 * line1Perpendicular);
+                    tempLine3 = Line.CreateBound(Point2 - 10000 * line1Perpendicular, Point2 + 10000 * line1Perpendicular);
                 }
                 else
                 {
-                    tempLine3 = Line.CreateBound(point4 - 10000 * line1Perpendicular, point3 + 10000 * line1Perpendicular);
+                    tempLine3 = Line.CreateBound(Point4 - 10000 * line1Perpendicular, Point4 + 10000 * line1Perpendicular);
                 }
             }
 
