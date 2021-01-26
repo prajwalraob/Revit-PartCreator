@@ -19,7 +19,7 @@
                     Command="{Binding SelectSet2Command}" CommandParameter="{Binding ElementName=MainWindowUI}"/>
         </StackPanel>
         <Button Padding="5" Margin="10" Content="Select Underlying Floor"
-                />
+                Command="{Binding SelectFloorCommand}" CommandParameter="{Binding ElementName=MainWindowUI}"/>
         <Button Padding="5" Margin="10" Content="Create Part" 
                 Command="{Binding PartCreateCommand}" CommandParameter="{Binding ElementName=MainWindowUI}"/>
     </StackPanel>

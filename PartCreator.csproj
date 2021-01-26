@@ -60,6 +60,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Process\CreateDividedParts.cs" />
     <Compile Include="Process\CreatePart.cs" />
     <Compile Include="ViewModels\Command.cs" />
     <Compile Include="ExternalProgram.cs" />

@@ -32,7 +32,7 @@ namespace PartCreator.Process
             GetIntersectionPoints();
         }
 
-        public bool Run()
+        public List<Line> GetBoudingSquare()
         {
 
             XYZ line1Parallel = Line1.Direction;
@@ -70,11 +70,40 @@ namespace PartCreator.Process
                 tempLine3 = CreateInfiniteLine(Point4, line1Perpendicular);
             }
 
-            CreateCurve(tempLine0);CreateCurve(tempLine1);CreateCurve(tempLine2);CreateCurve(tempLine3);
+            //CreateCurve(tempLine0);CreateCurve(tempLine1);CreateCurve(tempLine2);CreateCurve(tempLine3);
 
+            return GetSquare(tempLine0, tempLine1, tempLine2, tempLine3);
+        }
 
+        private List<Line> GetSquare(Line infLine0, Line infLine1, Line infLine2, Line infLine3)
+        {
+            IntersectionResultArray iresArray1;
+            SetComparisonResult result1 = infLine0.Intersect(infLine2, out iresArray1);
+            IntersectionResult ires1 = iresArray1.get_Item(0);
+            XYZ point1 = ires1.XYZPoint;
 
-            return true;
+            IntersectionResultArray iresArray2;
+            SetComparisonResult result2 = infLine0.Intersect(infLine3, out iresArray2);
+            IntersectionResult ires2 = iresArray2.get_Item(0);
+            XYZ point2 = ires2.XYZPoint;
+
+            IntersectionResultArray iresArray3;
+            SetComparisonResult result3 = infLine1.Intersect(infLine2, out iresArray3);
+            IntersectionResult ires3 = iresArray3.get_Item(0);
+            XYZ point3 = ires3.XYZPoint;
+
+            IntersectionResultArray iresArray4;
+            SetComparisonResult result4 = infLine1.Intersect(infLine3, out iresArray4);
+            IntersectionResult ires4 = iresArray4.get_Item(0);
+            XYZ point4 = ires4.XYZPoint;
+
+            List<Line> retLines = new List<Line>();
+            retLines.Add(Line.CreateBound(point1, point2));
+            retLines.Add(Line.CreateBound(point2, point4));
+            retLines.Add(Line.CreateBound(point4, point3));
+            retLines.Add(Line.CreateBound(point3, point1));
+
+            return retLines;
         }
 
         private void GetIntersectionPoints()
@@ -139,8 +168,6 @@ namespace PartCreator.Process
 
             return modelCurve;
         }
-
-
 
     }
 }

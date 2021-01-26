@@ -52,6 +52,7 @@ namespace PartCreator.ViewModels
                 typeof(ViewModel).GetProperty("Line" + k.ToString()).SetValue(this, PublicVariables.Doc.GetElement(reference) as ModelLine);
             }
 
+            TaskDialog.Show("Selection", "Selected Lines 1 and 2");
             mainWindow.ShowDialog();
         }
         
@@ -65,13 +66,17 @@ namespace PartCreator.ViewModels
                 typeof(ViewModel).GetProperty("Line" + k.ToString()).SetValue(this, PublicVariables.Doc.GetElement(reference) as ModelLine);
             }
 
+            TaskDialog.Show("Selection", "Selected Lines 3 and 4");
             mainWindow.ShowDialog();
         }
 
         public void PartCreate(object wnd)
         {
             CreatePart create = new CreatePart(Line1, Line2, Line3, Line4);
-            create.Run();
+            var lines = create.GetBoudingSquare();
+
+            CreateDividedParts dividedParts = new CreateDividedParts(SelectedFloor, lines);
+            dividedParts.Create();
         }
 
         public void SelectFloor(object wnd)
